@@ -1,0 +1,32 @@
+[package]
+name = "discord-ext-native-voice"
+version = "0.1.0"
+license = "MIT"
+description = "Voice, video, and stream transport primitives for discord.py-self"
+authors = ["Dolfies <me@dolfi.es>"]
+edition = "2024"
+
+[dependencies]
+pyo3 = { version = "0.29.0", features = ["extension-module"] }
+aes-gcm = "0.10.3"
+chacha20poly1305 = "0.10.1"
+yuv = { version = "0.8.16", features = ["fast_mode"] }
+libc = "0.2.186"
+getrandom = "0.4.3"
+
+[target.'cfg(windows)'.dependencies]
+windows = { version = "0.62.2", features = [
+    "Win32_Foundation",
+    "Win32_Graphics_Direct3D",
+    "Win32_Graphics_Direct3D11",
+    "Win32_Graphics_Dxgi",
+    "Win32_Graphics_Dxgi_Common",
+    "Win32_Graphics_Gdi",
+    "Win32_Networking_WinSock",
+    "Win32_Storage_FileSystem",
+    "Win32_System_IO",
+] }
+
+[lib]
+name = "_native_voice"
+crate-type = ["cdylib"]

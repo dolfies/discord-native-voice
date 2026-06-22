@@ -1,0 +1,30 @@
+# Rust
+/target/
+
+# Python
+/build/
+/dist/
+/*.egg-info/
+/.eggs/
+/.venv/
+/venv/
+__pycache__/
+*.py[cod]
+*.pyd
+*.so
+
+# Tool caches and coverage
+tools/
+/.mypy_cache/
+/.pytest_cache/
+/.ruff_cache/
+.coverage
+htmlcov/
+
+# Local integration output
+/test-output/
+*.log
+
+# OS/editor files
+.DS_Store
+Thumbs.db

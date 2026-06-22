@@ -1,0 +1,71 @@
+[build-system]
+requires = ["setuptools", "wheel", "setuptools-rust>=1.8"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "discord-ext-native-voice"
+version = "0.1.0"
+description = "Voice, video, and stream transport extension for discord.py-self"
+readme = "README.md"
+license = { file = "LICENSE" }
+authors = [
+    { name = "Dolfies", email = "me@dolfi.es" },
+]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Developers",
+    "Programming Language :: Python",
+    "Programming Language :: Rust",
+    "Operating System :: MacOS",
+    "Operating System :: POSIX",
+    "Operating System :: Windows",
+]
+dependencies = []
+
+[project.optional-dependencies]
+dev = [
+    "ruff==0.12",
+]
+
+[tool.setuptools]
+packages = ["discord.ext.native_voice"]
+include-package-data = true
+zip-safe = false
+
+[tool.setuptools.package-data]
+"discord.ext.native_voice" = ["*.pyi", "py.typed"]
+
+[[tool.setuptools-rust.ext-modules]]
+target = "discord.ext.native_voice._native_voice"
+debug = false
+
+[tool.ruff]
+line-length = 125
+
+[tool.ruff.lint.per-file-ignores]
+"tests/integration/_common.py" = ["E402"]
+
+[tool.ruff.format]
+line-ending = "auto"
+quote-style = "single"
+
+[tool.pyright]
+include = [
+    "discord/ext/native_voice",
+]
+exclude = [
+    "**/__pycache__",
+    "build",
+    "dist",
+    "docs",
+    "target",
+    "tools",
+]
+extraPaths = [
+    "../discord.py-self",
+]
+reportUnnecessaryTypeIgnoreComment = "warning"
+reportUnusedImport = "error"
+reportShadowedImports = false
+pythonVersion = "3.10"
+typeCheckingMode = "basic"
