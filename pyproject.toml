@@ -54,8 +54,8 @@ target = "discord.ext.native_voice._native_voice"
 debug = false
 
 [tool.cibuildwheel]
-build = "cp310-* cp311-* cp312-* cp313-* cp314-*"
-skip = "cp3??t-* pp*"
+build = "cp310-* cp313-android_*"
+skip = "cp3??t-* *-musllinux_i686 *-musllinux_armv7l"
 build-verbosity = 1
 
 [tool.cibuildwheel.linux]
