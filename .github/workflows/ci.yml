@@ -36,6 +36,9 @@ jobs:
         with:
           components: rustfmt
 
+      - name: Cache Rust
+        uses: Swatinem/rust-cache@v2
+
       - name: Install Python dependencies
         run: |
           python -m pip install --upgrade pip
@@ -66,6 +69,8 @@ jobs:
         uses: actions/setup-python@v6
         with:
           python-version: '3.11'
+          cache: 'pip'
+          cache-dependency-path: docs/requirements.txt
 
       - name: Install documentation dependencies
         run: python -m pip install --upgrade pip -r docs/requirements.txt

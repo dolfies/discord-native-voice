@@ -2,11 +2,26 @@ name: Build Distributions
 
 on:
   push:
+    paths:
+      - '.github/workflows/build-distributions.yml'
+      - 'Cargo.lock'
+      - 'Cargo.toml'
+      - 'LICENSE'
+      - 'MANIFEST.in'
+      - 'README.md'
+      - 'discord/ext/native_voice/**'
+      - 'pyproject.toml'
+      - 'setup.cfg'
+      - 'src/**'
   workflow_call:
   workflow_dispatch:
 
 permissions:
   contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event_name }}-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
   sdist:
@@ -42,24 +57,25 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        platform:
-          - name: x86_64
-            archs: x86_64
-          - name: i686
-            archs: i686
-          - name: aarch64
-            archs: aarch64
-          - name: armv7l
-            archs: armv7l
+        platform: ${{ fromJSON(github.event_name == 'push' && '[{"name":"x86_64","archs":"x86_64"}]' || '[{"name":"x86_64","archs":"x86_64"},{"name":"i686","archs":"i686"},{"name":"aarch64","archs":"aarch64"},{"name":"armv7l","archs":"armv7l"}]') }}
 
     steps:
       - name: Checkout repository
         uses: actions/checkout@v7
 
       - name: Set up QEMU
+        if: contains(matrix.platform.archs, 'aarch64') || contains(matrix.platform.archs, 'armv7l')
         uses: docker/setup-qemu-action@v4
 
-      - name: Build wheels
+      - name: Build smoke wheels
+        if: github.event_name == 'push'
+        uses: pypa/cibuildwheel@v4.1.0
+        env:
+          CIBW_ARCHS_LINUX: ${{ matrix.platform.archs }}
+          CIBW_REPAIR_WHEEL_COMMAND_LINUX: ""
+
+      - name: Build release wheels
+        if: github.event_name != 'push'
         uses: pypa/cibuildwheel@v4.1.0
         env:
           CIBW_ARCHS_LINUX: ${{ matrix.platform.archs }}
@@ -73,6 +89,7 @@ jobs:
 
   android:
     name: Android ${{ matrix.platform.name }}
+    if: github.event_name != 'push'
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
@@ -80,8 +97,10 @@ jobs:
         platform:
           - name: arm64_v8a
             archs: arm64_v8a
+            rust_target: aarch64-linux-android
           - name: x86_64
             archs: x86_64
+            rust_target: x86_64-linux-android
 
     steps:
       - name: Checkout repository
@@ -90,7 +109,7 @@ jobs:
       - name: Set up Rust
         uses: dtolnay/rust-toolchain@stable
         with:
-          targets: aarch64-linux-android,x86_64-linux-android
+          targets: ${{ matrix.platform.rust_target }}
 
       - name: Build wheels
         uses: pypa/cibuildwheel@v4.1.0
@@ -111,13 +130,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        platform:
-          - name: amd64
-            archs: AMD64
-          - name: x86
-            archs: x86
-          - name: arm64
-            archs: ARM64
+        platform: ${{ fromJSON(github.event_name == 'push' && '[{"name":"amd64","archs":"AMD64","rust_target":""}]' || '[{"name":"amd64","archs":"AMD64","rust_target":""},{"name":"x86","archs":"x86","rust_target":"i686-pc-windows-msvc"},{"name":"arm64","archs":"ARM64","rust_target":"aarch64-pc-windows-msvc"}]') }}
 
     steps:
       - name: Checkout repository
@@ -125,10 +138,20 @@ jobs:
 
       - name: Set up Rust
         uses: dtolnay/rust-toolchain@stable
-        with:
-          targets: i686-pc-windows-msvc,aarch64-pc-windows-msvc
+
+      - name: Add Windows Rust target
+        if: matrix.platform.rust_target != ''
+        run: rustup target add ${{ matrix.platform.rust_target }}
 
       - name: Build wheels
+        if: github.event_name == 'push'
+        uses: pypa/cibuildwheel@v4.1.0
+        env:
+          CIBW_ARCHS_WINDOWS: ${{ matrix.platform.archs }}
+          CIBW_REPAIR_WHEEL_COMMAND_WINDOWS: ""
+
+      - name: Build wheels
+        if: github.event_name != 'push'
         uses: pypa/cibuildwheel@v4.1.0
         env:
           CIBW_ARCHS_WINDOWS: ${{ matrix.platform.archs }}
@@ -142,6 +165,7 @@ jobs:
 
   macos:
     name: macOS ${{ matrix.platform.name }}
+    if: github.event_name != 'push'
     runs-on: ${{ matrix.platform.runner }}
     strategy:
       fail-fast: false
