@@ -31,6 +31,10 @@ classifiers = [
 ]
 dependencies = []
 
+[project.urls]
+Documentation = "https://discord-native-voice.readthedocs.io/en/latest/"
+"Issue tracker" = "https://github.com/dolfies/discord.py-self/issues"
+
 [project.optional-dependencies]
 dev = [
     "ruff==0.12",
