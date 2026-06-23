@@ -59,15 +59,15 @@ debug = false
 
 [tool.cibuildwheel]
 build = "cp310-* cp313-android_*"
-skip = "cp3??t-* *-musllinux_i686 *-musllinux_armv7l"
+skip = "cp3??t-* *-musllinux_i686"
 build-verbosity = 1
 
 [tool.cibuildwheel.linux]
-before-all = "curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y --profile minimal"
+before-all = "curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y --profile minimal && case \"$(uname -m)\" in armv7*|armv6*) rustup target add armv7-unknown-linux-gnueabihf armv7-unknown-linux-musleabihf ;; esac"
 environment = { PATH = "$HOME/.cargo/bin:$PATH" }
 
 [tool.cibuildwheel.android]
-before-all = "rustup target add aarch64-linux-android x86_64-linux-android"
+before-all = "rustup target add aarch64-linux-android x86_64-linux-android armv7-linux-androideabi thumbv7neon-linux-androideabi"
 
 [tool.cibuildwheel.macos]
 environment = { MACOSX_DEPLOYMENT_TARGET = "10.12" }

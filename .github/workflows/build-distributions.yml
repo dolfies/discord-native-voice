@@ -57,7 +57,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        platform: ${{ fromJSON(github.event_name == 'push' && '[{"name":"x86_64","archs":"x86_64"}]' || '[{"name":"x86_64","archs":"x86_64"},{"name":"i686","archs":"i686"},{"name":"aarch64","archs":"aarch64"},{"name":"armv7l","archs":"armv7l"}]') }}
+        platform: ${{ fromJSON(github.event_name == 'push' && '[{"name":"x86_64","archs":"x86_64","build":"cp310-manylinux_x86_64"},{"name":"armv7l","archs":"armv7l","build":"cp310-manylinux_armv7l"}]' || '[{"name":"x86_64","archs":"x86_64","build":"cp310-*"},{"name":"i686","archs":"i686","build":"cp310-*"},{"name":"aarch64","archs":"aarch64","build":"cp310-*"},{"name":"armv7l","archs":"armv7l","build":"cp310-*"}]') }}
 
     steps:
       - name: Checkout repository
@@ -71,6 +71,7 @@ jobs:
         if: github.event_name == 'push'
         uses: pypa/cibuildwheel@v4.1.0
         env:
+          CIBW_BUILD: ${{ matrix.platform.build }}
           CIBW_ARCHS_LINUX: ${{ matrix.platform.archs }}
           CIBW_REPAIR_WHEEL_COMMAND_LINUX: ""
 
@@ -78,6 +79,7 @@ jobs:
         if: github.event_name != 'push'
         uses: pypa/cibuildwheel@v4.1.0
         env:
+          CIBW_BUILD: ${{ matrix.platform.build }}
           CIBW_ARCHS_LINUX: ${{ matrix.platform.archs }}
 
       - name: Upload wheels
