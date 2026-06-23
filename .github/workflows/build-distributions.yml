@@ -67,14 +67,14 @@ jobs:
         if: contains(matrix.platform.archs, 'aarch64') || contains(matrix.platform.archs, 'armv7l')
         uses: docker/setup-qemu-action@v4
 
-      - name: Build smoke wheels
+      - name: Build wheels
         if: github.event_name == 'push'
         uses: pypa/cibuildwheel@v4.1.0
         env:
           CIBW_ARCHS_LINUX: ${{ matrix.platform.archs }}
           CIBW_REPAIR_WHEEL_COMMAND_LINUX: ""
 
-      - name: Build release wheels
+      - name: Build wheels
         if: github.event_name != 'push'
         uses: pypa/cibuildwheel@v4.1.0
         env:
