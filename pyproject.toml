@@ -30,7 +30,9 @@ classifiers = [
     "Topic :: Utilities",
     "Typing :: Typed",
 ]
-dependencies = []
+dependencies = [
+    "discord.py-self>=2.2.0",
+]
 
 [project.urls]
 Documentation = "https://discord-native-voice.readthedocs.io/en/latest/"
@@ -38,7 +40,7 @@ Documentation = "https://discord-native-voice.readthedocs.io/en/latest/"
 
 [project.optional-dependencies]
 dev = [
-    "ruff==0.12",
+    "ruff==0.12.0",
 ]
 
 [tool.setuptools]
@@ -94,11 +96,7 @@ exclude = [
     "target",
     "tools",
 ]
-extraPaths = [
-    "../discord.py-self",
-]
 reportUnnecessaryTypeIgnoreComment = "warning"
 reportUnusedImport = "error"
-reportShadowedImports = false
 pythonVersion = "3.10"
 typeCheckingMode = "basic"

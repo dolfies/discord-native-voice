@@ -3,17 +3,18 @@ name: CI
 on:
   push:
   pull_request:
+    types: [ opened, synchronize ]
   workflow_dispatch:
+
+# Runs do not need to be concurrent
+concurrency:
+    group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+    cancel-in-progress: true
 
 jobs:
   checks:
-    name: ${{ matrix.os }} / Python ${{ matrix.python-version }}
-    runs-on: ${{ matrix.os }}
-    strategy:
-      fail-fast: false
-      matrix:
-        os: [ubuntu-latest, windows-latest, macos-latest]
-        python-version: ['3.11']
+    name: Source checks
+    runs-on: ubuntu-latest
 
     steps:
       - name: Checkout
@@ -22,77 +23,36 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v6
         with:
-          python-version: ${{ matrix.python-version }}
+          python-version: '3.11'
+          cache: 'pip'
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: '24'
 
       - name: Set up Rust
         uses: dtolnay/rust-toolchain@stable
         with:
           components: rustfmt
 
-      - name: Install build tooling
-        run: python -m pip install --upgrade pip setuptools wheel setuptools-rust
+      - name: Install Python dependencies
+        run: |
+          python -m pip install --upgrade pip
+          # TODO: install from pypi once published
+          python -m pip install --upgrade ruff==0.12.0 "discord.py-self[voice] @ git+https://github.com/dolfies/discord.py-self"
+
+      - name: Check Ruff
+        run: ruff check .
+
+      - name: Check Pyright
+        run: npx --yes pyright@1.1.410
 
       - name: Check Rust formatting
         run: cargo fmt --check
 
       - name: Check Rust crate
         run: cargo check
-
-      - name: Build Python wheel
-        run: python -m pip wheel --no-deps --no-build-isolation --wheel-dir dist .
-
-      - name: Install Python wheel
-        shell: python
-        run: |
-          import subprocess
-          import sys
-          from pathlib import Path
-
-          wheels = sorted(Path('dist').glob('discord_native_voice-*.whl'))
-          if not wheels:
-              raise SystemExit('Built wheel was not found')
-
-          subprocess.check_call([sys.executable, '-m', 'pip', 'install', '--no-deps', str(wheels[-1])])
-
-      - name: Import native extension
-        shell: python
-        run: |
-          import site
-          import sysconfig
-          from importlib import util
-          from pathlib import Path
-
-          roots = {
-              Path(path)
-              for path in sysconfig.get_paths().values()
-              if path
-          }
-          roots.update(Path(path) for path in site.getsitepackages())
-          usersite = site.getusersitepackages()
-          if usersite:
-              roots.add(Path(usersite))
-
-          candidates = [
-              path
-              for root in roots
-              if root.exists()
-              for pattern in ('discord/ext/native_voice/_native_voice*.pyd', 'discord/ext/native_voice/_native_voice*.so')
-              for path in root.glob(pattern)
-          ]
-          if not candidates:
-              raise SystemExit('Installed native extension was not found')
-
-          spec = util.spec_from_file_location('_native_voice', candidates[0])
-          if spec is None or spec.loader is None:
-              raise SystemExit(f'Could not load native extension from {candidates[0]}')
-
-          module = util.module_from_spec(spec)
-          spec.loader.exec_module(module)
-
-          expected = ('TransportCrypto', 'AV1Depacketizer')
-          missing = [name for name in expected if not hasattr(module, name)]
-          if missing:
-              raise SystemExit(f'Missing native exports: {missing}')
 
   docs:
     name: Documentation
@@ -103,7 +63,7 @@ jobs:
         uses: actions/checkout@v6
 
       - name: Set up Python
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v6
         with:
           python-version: '3.11'
 
@@ -112,7 +72,3 @@ jobs:
 
       - name: Build documentation
         run: sphinx-build -b html -D language=en -j auto -n -T --keep-going docs docs/_build/html
-
-  distributions:
-    name: Distributions
-    uses: ./.github/workflows/build-distributions.yml

@@ -161,7 +161,7 @@ def build_lookup_table(env: BuildEnvironment) -> Dict[str, List[str]]:
         'class',
     }
 
-    for fullname, _, objtype, docname, _, _ in domain.get_objects():
+    for fullname, _dispname, objtype, docname, _anchor, _priority in domain.get_objects():
         if objtype in ignored:
             continue
 
