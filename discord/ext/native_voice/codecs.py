@@ -56,7 +56,7 @@ def get_local_video_codec_capabilities(
 
     Returns
     -------
-    Dict[:class:`str`, :class:`VideoCodecCapability`]
+    Dict[:class:`str`, :class:`dict`]
         A mapping of Discord video codec name to local encode/decode support,
         selected FFmpeg encoder/decoder names, hardware flags, and an ordering
         score.

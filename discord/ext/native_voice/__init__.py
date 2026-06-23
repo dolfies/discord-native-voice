@@ -9,7 +9,6 @@ from ._native_voice import (
     VP9Depacketizer,
 )
 from .client import VoiceClient
-from .codecs import VideoCodecCapability, get_local_video_codec_capabilities
 from .media import (
     AsyncQueueSink,
     AudioFrameSource,
@@ -52,13 +51,12 @@ from .media import (
     VideoFrame,
     VideoFrameSource,
     VideoProbeInfo,
-    VideoProbePayload,
     VideoTranscoderConfig,
     WaveSink,
 )
 from .player import MediaPlayerStats
 from .rtp import AudioSendStats, RTCPReceiverReport, RTPExtension, RTPPacket, RTPSendStats
-from .stream_client import StreamClient, StreamPreviewData, StreamPreviewProvider
+from .stream_client import StreamClient
 
 __all__ = (
     'AV1Depacketizer',
@@ -106,21 +104,16 @@ __all__ = (
     'SilenceFillSink',
     'SimulcastVideoSource',
     'StreamClient',
-    'StreamPreviewData',
-    'StreamPreviewProvider',
     'TimedFilter',
     'TransportCrypto',
     'UserFilter',
     'VP8Depacketizer',
     'VP9Depacketizer',
-    'VideoCodecCapability',
     'VideoConfig',
     'VideoFrame',
     'VideoFrameSource',
     'VideoProbeInfo',
-    'VideoProbePayload',
     'VideoTranscoderConfig',
     'VoiceClient',
     'WaveSink',
-    'get_local_video_codec_capabilities',
 )

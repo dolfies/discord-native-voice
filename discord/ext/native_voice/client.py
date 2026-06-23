@@ -638,12 +638,30 @@ class VoiceClient(discord.VoiceClient):
         self_mute: bool = False,
         self_video: bool = False,
     ) -> None:
-        await super().connect(
+        await self._connect_rtc_transport(
             reconnect=reconnect,
             timeout=timeout,
             self_deaf=self_deaf,
             self_mute=self_mute,
             self_video=self_video,
+        )
+
+    async def _connect_rtc_transport(
+        self,
+        *,
+        reconnect: bool,
+        timeout: float,
+        self_deaf: bool = False,
+        self_mute: bool = False,
+        self_video: bool = False,
+    ) -> None:
+        await self._connection.connect(
+            reconnect=reconnect,
+            timeout=timeout,
+            self_deaf=self_deaf,
+            self_mute=self_mute,
+            self_video=self_video,
+            resume=False,
         )
         if not self.is_connected() or self._connection.secret_key is MISSING or self._connection.mode is MISSING:
             raise discord.ClientException('Voice connection did not finish negotiating transport encryption.')
@@ -675,7 +693,9 @@ class VoiceClient(discord.VoiceClient):
         reconnect: bool = True,
         cls: Callable[[VoiceProtocol, Stream], ST] = MISSING,
     ) -> StreamClient | ST:
-        """Create a Go Live stream from the current voice channel.
+        """|coro|
+
+        Create a Go Live stream from the current voice channel.
 
         Parameters
         ----------
@@ -694,7 +714,7 @@ class VoiceClient(discord.VoiceClient):
 
         Raises
         ------
-        ClientException
+        discord.ClientException
             The voice client is not connected or the voice session is not ready.
         """
         if not self.is_connected():
@@ -796,10 +816,10 @@ class VoiceClient(discord.VoiceClient):
         self._last_packet_decode_error_log = now
         log.debug(message, *args, exc_info=True)
 
-    def _ignore_video_receive_stat(self, _key: str, _amount: int = 1) -> None:
+    def _ignore_video_receive_stat(self, key: str, amount: int = 1) -> None:
         pass
 
-    def _ignore_video_receive_max_stat(self, _key: str, _value: int) -> None:
+    def _ignore_video_receive_max_stat(self, key: str, value: int) -> None:
         pass
 
     def _ignore_video_reorder_stats(self) -> None:
@@ -1226,11 +1246,11 @@ class VoiceClient(discord.VoiceClient):
 
         Raises
         ------
-        ClientException
+        discord.ClientException
             Already playing media or not connected.
         TypeError
             Source is not a :class:`AudioSource` or after is not callable.
-        OpusNotLoaded
+        discord.opus.OpusNotLoaded
             Source is not opus encoded and opus is not loaded.
         ValueError
             An improper value was passed as an encoder parameter.
@@ -1486,7 +1506,12 @@ class VoiceClient(discord.VoiceClient):
         fps: int = 30,
         bitrate: int = 0,
     ) -> None:
-        """Start outbound video using the negotiated video codec.
+        """|coro|
+
+        Start outbound video using the negotiated video codec.
+
+        This is called automatically by :meth:`play` and should not be
+        called by the user in most cases.
 
         Parameters
         ----------
@@ -1501,7 +1526,7 @@ class VoiceClient(discord.VoiceClient):
 
         Raises
         ------
-        ClientException
+        discord.ClientException
             The voice client is not connected, or no video codec was negotiated.
         """
         if not self.is_connected():
@@ -1537,7 +1562,9 @@ class VoiceClient(discord.VoiceClient):
         any: int | None = MISSING,
         pixel_count: int | None = None,
     ) -> None:
-        """Request that Discord forwards video for an SSRC.
+        """|coro|
+
+        Request that Discord forwards video for an SSRC.
 
         Parameters
         ----------
@@ -1552,7 +1579,7 @@ class VoiceClient(discord.VoiceClient):
 
         Raises
         ------
-        ClientException
+        discord.ClientException
             The voice client is not connected.
         """
         if not self.is_connected():
@@ -1581,7 +1608,13 @@ class VoiceClient(discord.VoiceClient):
         await self._apply_selected_video_stream(codec=self._video_codec, params=self._video_start_params)
 
     async def stop_video(self) -> None:
-        """Stop outbound video and reset video transport state."""
+        """|coro|
+
+        Stop outbound video and reset video transport state.
+
+        This is called automatically by the player and should not be
+        called by the user in most cases.
+        """
         self._last_video_state = None
         if self.ws:
             await self.ws.video_state(video_ssrc=0, rtx_ssrc=0, streams=[])
@@ -2368,7 +2401,7 @@ class VoiceClient(discord.VoiceClient):
 
         Raises
         ------
-        ClientException
+        discord.ClientException
             The voice client is not connected, video has not been started, no
             active stream is selected, the stream is inactive, or the stream has
             no negotiated SSRC.
@@ -2448,7 +2481,7 @@ class VoiceClient(discord.VoiceClient):
 
         Raises
         ------
-        ClientException
+        discord.ClientException
             The voice client is not connected, video has not been started, an
             active stream has no negotiated SSRC, or no active stream is selected.
         """
@@ -2478,7 +2511,7 @@ class VoiceClient(discord.VoiceClient):
 
         Raises
         ------
-        ClientException
+        discord.ClientException
             The voice client is not connected, is already listening, or ``sink``
             is already registered as a child or closed.
         TypeError
@@ -2544,7 +2577,7 @@ class VoiceClient(discord.VoiceClient):
         ------
         ValueError
             The voice client is not currently listening.
-        ClientException
+        discord.ClientException
             ``sink`` is already registered as a child or closed.
         """
         if not isinstance(sink, MediaSink):

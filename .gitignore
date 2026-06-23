@@ -12,6 +12,7 @@ __pycache__/
 *.py[cod]
 *.pyd
 *.so
+docs/_build
 
 # Tool caches and coverage
 tools/

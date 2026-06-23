@@ -371,13 +371,13 @@ class StreamClient(VoiceClient, StreamProtocol):
 
         Raises
         ------
-        ClientException
+        discord.ClientException
             Already playing media or not connected.
             You do not own this stream.
             A preview was requested without a media source or preview provider.
         TypeError
             Source is not a :class:`AudioSource` or after is not callable.
-        OpusNotLoaded
+        discord.opus.OpusNotLoaded
             Source is not opus encoded and opus is not loaded.
         ValueError
             An improper value was passed as an encoder parameter.
@@ -416,7 +416,7 @@ class StreamClient(VoiceClient, StreamProtocol):
     ) -> None:
         self._stream_connect_timeout = timeout
         self._stream_reconnect = reconnect
-        await super().connect(
+        await self._connect_rtc_transport(
             reconnect=reconnect,
             timeout=timeout,
             self_deaf=self_deaf,
@@ -426,7 +426,10 @@ class StreamClient(VoiceClient, StreamProtocol):
         self._ensure_stream_preview_task()
 
     async def disconnect(self, *, force: bool = False) -> None:
-        """Disconnect this stream RTC client and clean up stream playback."""
+        """|coro|
+
+        Disconnect this stream RTC client and clean up stream playback.
+        """
         self._prepare_disconnect()
         was_connected = self.is_connected()
         await self._connection.disconnect(force=force, wait=False)
@@ -484,7 +487,7 @@ class StreamClient(VoiceClient, StreamProtocol):
 
         Raises
         ------
-        ClientException
+        discord.ClientException
             This client does not own the stream or no preview provider is set.
         """
         if not self.stream.is_owner():

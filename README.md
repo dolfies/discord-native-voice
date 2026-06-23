@@ -15,16 +15,16 @@ drop-in replacement for the existing `VoiceClient`.
 
 ## Key Features
 
-- Native voice send and receive.
-- Video send and receive for all Discord video codecs: AV1, H265, H264, VP8, and VP9.
-- Go Live stream creation, watching, sending, and receiving.
-- Media sources for FFmpeg files, desktop capture, raw audio, and raw video.
-- Media sinks for callbacks, queues, WAV output, FFmpeg output, and muxed audio/video recordings.
-- Codec advertisement based on local FFmpeg support.
-- RTX/NACK support for video packet recovery.
-- Video simulcast support.
-- End-to-end encryption support with DAVE.
-- Compatible with nearly all existing voice sinks.
+- Native voice send and receive
+- Video send and receive for all Discord video codecs: AV1, H265, H264, VP8, and VP9
+- Go Live stream creation, watching, sending, and receiving
+- Media sources for FFmpeg files, desktop capture, raw audio, and raw video
+- Media sinks for callbacks, queues, WAV output, FFmpeg output, and muxed audio/video recordings
+- Codec advertisement based on local FFmpeg support
+- RTX/NACK support for video packet recovery
+- Video simulcast support
+- End-to-end encryption support with DAVE
+- Compatible with nearly all existing voice sinks
 
 ## Installing
 
@@ -156,7 +156,12 @@ The extension includes source and sink helpers for common media tasks:
 For advanced integrations, received media is exposed as `MediaPacket` objects
 with RTP metadata and parsed RTP extensions.
 
+## Docs
+
+Docs are available at https://discord-native-voice.readthedocs.io/en/latest/index.html. Credits to [discord.py](https://github.com/Rapptz/discord.py) for the theme.
+
 ## Issues
+
 For now, issues should be opened under this repository. Eventually, they will be migrated to the discord.py-self repository.
 
 ## Links

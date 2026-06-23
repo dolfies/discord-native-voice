@@ -114,7 +114,7 @@ dependencies = [
 ]
 
 [[package]]
-name = "discord-ext-native-voice"
+name = "discord-native-voice"
 version = "0.1.0"
 dependencies = [
  "aes-gcm",

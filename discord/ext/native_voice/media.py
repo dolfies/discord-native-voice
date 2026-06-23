@@ -167,7 +167,7 @@ class MediaPacket:
     Attributes
     ----------
     media_type: :class:`str`
-        The media type, currently ``"audio"`` or ``"video"``.
+        The media type, currently ``audio`` or ``video``.
     codec: :class:`str`
         The decoded codec name.
     payload: :class:`bytes`
@@ -199,7 +199,7 @@ class MediaPacket:
     rtcp_time: Optional[:class:`float`]
         Unix timestamp mapped from RTCP sender reports or RTP absolute send
         time, if either was available.
-    speaking_flags: Optional[:class:`SpeakingFlags`]
+    speaking_flags: Optional[:class:`discord.SpeakingFlags`]
         The decoded Discord speaking flags, if this is an audio packet.
     audio_level: Optional[:class:`int`]
         Decoded RTP audio-level extension value, where ``0`` is loudest and
@@ -554,7 +554,7 @@ class _VideoSourceDelegate:
 class AudioMediaSource(MediaSource):
     """Wraps an existing :class:`discord.AudioSource` as a media source.
 
-    This keeps first-party d.py audio sources, such as
+    This keeps first-party discord.py audio sources, such as
     :class:`discord.PCMAudio`, :class:`discord.FFmpegPCMAudio`, and
     :class:`discord.FFmpegOpusAudio`, usable in unified media pipelines.
 
@@ -571,7 +571,7 @@ class AudioMediaSource(MediaSource):
 
     def __init__(self, original: AudioSource, /) -> None:
         if not isinstance(original, AudioSource):
-            raise TypeError(f'expected AudioSource not {original.__class__.__name__}')
+            raise TypeError(f'Expected AudioSource not {original.__class__.__name__}')
 
         self.original = original
         self._finished = False
@@ -694,11 +694,6 @@ class MultiMediaSource(MediaSource):
     ----------
     sources: List[:class:`discord.AudioSource`]
         The sources to combine.
-
-    Attributes
-    ----------
-    sources: List[:class:`discord.AudioSource`]
-        The sources being combined.
     """
 
     def __init__(self, sources: Sequence[AudioSource], /) -> None:
@@ -843,13 +838,11 @@ class MediaVolumeTransformer(_VideoSourceDelegate, MediaSource):
     ----------
     original: :class:`discord.AudioSource`
         The wrapped source.
-    volume: :class:`float`
-        The audio volume multiplier.
     """
 
     def __init__(self, original: AudioSource, volume: float = 1.0) -> None:
         if not isinstance(original, AudioSource):
-            raise TypeError(f'expected AudioSource not {original.__class__.__name__}')
+            raise TypeError(f'Expected AudioSource not {original.__class__.__name__}')
 
         source = original if isinstance(original, MediaSource) else AudioMediaSource(original)
         if source.has_audio() and source.is_opus():
@@ -2098,7 +2091,7 @@ class FFmpegVideoSource(_VideoOnlySource):
 
         Raises
         ------
-        ClientException
+        discord.ClientException
             Desktop capture, FFmpeg startup, encoder validation, or the preflight encode failed.
         RuntimeError
             Platform desktop capture defaults are not available.
@@ -2226,7 +2219,7 @@ class FFmpegVideoSource(_VideoOnlySource):
 
         Raises
         ------
-        ClientException
+        discord.ClientException
             Desktop capture, FFmpeg startup, or encoder selection failed.
         RuntimeError
             Platform desktop capture defaults are not available.
@@ -2333,7 +2326,7 @@ class FFmpegVideoSource(_VideoOnlySource):
         ------
         TypeError
             ``source`` is incompatible with the selected ``pipe`` mode.
-        ClientException
+        discord.ClientException
             FFmpeg startup or encoder selection failed.
         ValueError
             ``codec`` is not a supported Discord video codec.
@@ -2378,7 +2371,9 @@ class FFmpegVideoSource(_VideoOnlySource):
         preview_input_args: Sequence[str] | None = None,
         transcoder: VideoTranscoderConfig | None = None,
     ) -> FFmpegVideoSource:
-        """Create a video source while probing missing video metadata first.
+        """|coro|
+
+        Create a video source while probing missing video metadata first.
 
         Parameters
         ----------
@@ -2422,7 +2417,7 @@ class FFmpegVideoSource(_VideoOnlySource):
             ``method`` names an invalid video probe method.
         TypeError
             ``method`` is not a string, callable, or ``None``.
-        ClientException
+        discord.ClientException
             Required video metadata could not be probed or FFmpeg setup failed.
         ValueError
             ``codec`` is not a supported Discord video codec.
@@ -2463,7 +2458,9 @@ class FFmpegVideoSource(_VideoOnlySource):
         method: VideoProbeMethod = None,
         executable: str = 'ffmpeg',
     ) -> VideoProbeInfo:
-        """Probe the first video stream for codec, width, height, FPS, and bitrate.
+        """|coro|
+
+        Probe the first video stream for codec, width, height, FPS, and bitrate.
 
         Parameters
         ----------
@@ -2544,8 +2541,8 @@ class FFmpegVideoSource(_VideoOnlySource):
         return process.stdout if process.returncode == 0 and process.stdout else None
 
     def capture_stats(self) -> dict[str, int | float]:
-        stats = getattr(self._pipe_source, 'stats', None)
-        pipe_stats = getattr(self._pipe_source, 'pipe_stats', None)
+        stats: Callable[[], Mapping[str, int | float]] | None = getattr(self._pipe_source, 'stats', None)
+        pipe_stats: Callable[[], Mapping[str, int | float]] | None = getattr(self._pipe_source, 'pipe_stats', None)
         payload: dict[str, int | float] = {}
         if callable(stats):
             payload.update(stats())
@@ -2796,7 +2793,7 @@ class FFmpegSimulcastVideoSource(SimulcastVideoSource):
 
         Raises
         ------
-        ClientException
+        discord.ClientException
             Duplicate stream RIDs, desktop capture, FFmpeg startup, or encoder selection failed.
         RuntimeError
             Platform desktop capture defaults are not available.
@@ -2892,7 +2889,7 @@ class FFmpegSimulcastVideoSource(SimulcastVideoSource):
 
         Raises
         ------
-        ClientException
+        discord.ClientException
             Duplicate stream RIDs, FFmpeg startup, or encoder selection failed.
         ValueError
             ``codec`` is not a supported Discord video codec.
@@ -2945,7 +2942,9 @@ class FFmpegSimulcastVideoSource(SimulcastVideoSource):
         preview_input_args: Sequence[str] | None = None,
         transcoder: VideoTranscoderConfig | None = None,
     ) -> FFmpegSimulcastVideoSource:
-        """Create a simulcast source while probing missing video metadata first.
+        """|coro|
+
+        Create a simulcast source while probing missing video metadata first.
 
         Parameters
         ----------
@@ -2987,7 +2986,7 @@ class FFmpegSimulcastVideoSource(SimulcastVideoSource):
 
         Raises
         ------
-        ClientException
+        discord.ClientException
             Required video metadata could not be probed, duplicate stream RIDs were found, or FFmpeg setup failed.
         ValueError
             ``codec`` is not a supported Discord video codec.
@@ -3113,7 +3112,7 @@ class FFmpegMediaSource(CompositeMediaSource):
 
         Raises
         ------
-        ClientException
+        discord.ClientException
             ``pipe=True`` was used with ``audio=True`` or FFmpeg setup failed.
         TypeError
             ``source`` is incompatible with the selected ``pipe`` mode.
@@ -3196,7 +3195,9 @@ class FFmpegMediaSource(CompositeMediaSource):
         preview_input_args: Sequence[str] | None = None,
         video_transcoder: VideoTranscoderConfig | None = None,
     ) -> FFmpegMediaSource:
-        """Create a media source while probing media metadata first.
+        """|coro|
+
+        Create a media source while probing media metadata first.
 
         This mirrors :meth:`discord.FFmpegOpusAudio.from_probe` for unified
         audio/video playback, letting FFmpeg copy Opus audio when possible and
@@ -3251,7 +3252,7 @@ class FFmpegMediaSource(CompositeMediaSource):
 
         Raises
         ------
-        ClientException
+        discord.ClientException
             Required media metadata could not be probed or FFmpeg setup failed.
         ValueError
             ``codec`` is not a supported Discord video codec.
@@ -3300,7 +3301,9 @@ class FFmpegMediaSource(CompositeMediaSource):
         method: VideoProbeMethod = None,
         executable: str = 'ffmpeg',
     ) -> VideoProbeInfo:
-        """Probe the first video stream for codec, width, height, FPS, and bitrate.
+        """|coro|
+
+        Probe the first video stream for codec, width, height, FPS, and bitrate.
 
         Parameters
         ----------
@@ -3454,7 +3457,7 @@ class FFmpegMediaSource(CompositeMediaSource):
 
         Raises
         ------
-        ClientException
+        discord.ClientException
             Desktop capture, FFmpeg startup, encoder validation, or the preflight encode failed.
         RuntimeError
             Platform desktop capture defaults are not available.
@@ -3535,7 +3538,7 @@ class FFmpegMediaSource(CompositeMediaSource):
 
         Raises
         ------
-        ClientException
+        discord.ClientException
             Desktop capture, FFmpeg startup, or encoder selection failed.
         RuntimeError
             Platform desktop capture defaults are not available.
@@ -3601,7 +3604,7 @@ class MediaSink(abc.ABC):
 
     def _check_child(self, child: MediaSink) -> None:
         if not isinstance(child, MediaSink):
-            raise TypeError(f'expected MediaSink not {child.__class__.__name__}')
+            raise TypeError(f'Expected MediaSink not {child.__class__.__name__}')
         if child is self or child.parent is not None or child in self.root.walk_children():
             raise RuntimeError('Sink is already registered')
         if child.closed:
@@ -4071,11 +4074,6 @@ class MediaSinkVolumeTransformer(_DestinationSink):
         The child sink to forward transformed packets to.
     volume: :class:`float`
         The initial audio volume multiplier.
-
-    Attributes
-    ----------
-    volume: :class:`float`
-        The audio volume multiplier.
     """
 
     def __init__(self, destination: MediaSink, volume: float = 1.0, /) -> None:
@@ -4680,7 +4678,10 @@ class AsyncQueueSink(_FilteredMediaSink):
             self.dropped += 1
 
     async def get(self) -> MediaPacket:
-        """:class:`MediaPacket`: Remove and return one packet from the async queue."""
+        """|coro|
+
+        :class:`MediaPacket`: Remove and return one packet from the async queue.
+        """
         return await self.queue.get()
 
     def get_nowait(self) -> MediaPacket:
@@ -4716,7 +4717,10 @@ class AsyncQueueSink(_FilteredMediaSink):
         self.queue.task_done()
 
     async def join(self) -> None:
-        """Wait until all queued packets are marked done."""
+        """|coro|
+
+        Wait until all queued packets are marked done.
+        """
         await self.queue.join()
 
 

@@ -3,7 +3,7 @@ requires = ["setuptools", "wheel", "setuptools-rust>=1.8"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "discord-ext-native-voice"
+name = "discord-native-voice"
 version = "0.1.0"
 description = "Voice, video, and stream transport extension for discord.py-self"
 readme = "README.md"
@@ -25,6 +25,22 @@ dependencies = []
 [project.optional-dependencies]
 dev = [
     "ruff==0.12",
+]
+docs = [
+    "sphinx==4.4.0",
+    "sphinxcontrib_trio==1.1.2",
+    # TODO: bump these when migrating to a newer Sphinx version
+    "sphinxcontrib-websupport==1.2.4",
+    "sphinxcontrib-applehelp==1.0.4",
+    "sphinxcontrib-devhelp==1.0.2",
+    "sphinxcontrib-htmlhelp==2.0.1",
+    "sphinxcontrib-jsmath==1.0.1",
+    "sphinxcontrib-qthelp==1.0.3",
+    "sphinxcontrib-serializinghtml==1.1.5",
+    "typing-extensions>=4.3,<5",
+    "sphinx-inline-tabs==2023.4.21",
+    # TODO: Remove this when moving to Sphinx >= 6.6
+    "imghdr-lts==1.0.0; python_version>='3.13'",
 ]
 
 [tool.setuptools]
