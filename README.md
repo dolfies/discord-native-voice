@@ -34,10 +34,10 @@ Install discord.py-self first, then install this extension:
 
 ```sh
 # Linux/macOS
-python3 -m pip install -U discord.py-self <todo>
+python3 -m pip install -U discord.py-self discord-native-voice
 
 # Windows
-py -3 -m pip install -U discord.py-self <todo>
+py -3 -m pip install -U discord.py-self discord-native-voice
 ```
 
 Note that [PyNaCl](https://pypi.org/project/PyNaCl/) is not required when using this extension.
