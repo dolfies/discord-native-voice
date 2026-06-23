@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "discord-native-voice"
-version = "0.1.0"
+dynamic = ["version"]
 description = "Voice, video, and stream transport extension for discord.py-self"
 readme = "README.md"
 license = { file = "LICENSE" }
@@ -50,6 +50,9 @@ zip-safe = false
 
 [tool.setuptools.package-data]
 "discord.ext.native_voice" = ["*.pyi", "py.typed"]
+
+[tool.setuptools.dynamic]
+version = { attr = "discord.ext.native_voice._version.__version__" }
 
 [[tool.setuptools-rust.ext-modules]]
 target = "discord.ext.native_voice._native_voice"

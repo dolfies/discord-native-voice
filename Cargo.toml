@@ -1,6 +1,6 @@
 [package]
 name = "discord-native-voice"
-version = "0.1.0"
+version = "0.1.1"
 license = "MIT"
 description = "Voice, video, and stream transport primitives for discord.py-self"
 authors = ["Dolfies <me@dolfi.es>"]

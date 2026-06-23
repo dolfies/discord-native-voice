@@ -1,6 +1,7 @@
 name: Build Distributions
 
 on:
+  push:
   workflow_call:
   workflow_dispatch:
 
@@ -14,7 +15,7 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
 
       - name: Set up CPython
         uses: actions/setup-python@v6
@@ -29,7 +30,7 @@ jobs:
         run: python -m build --sdist --outdir dist
 
       - name: Upload sdist
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: distributions-sdist
           path: dist/*.tar.gz
@@ -53,10 +54,10 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
 
       - name: Set up QEMU
-        uses: docker/setup-qemu-action@v3
+        uses: docker/setup-qemu-action@v4
 
       - name: Build wheels
         uses: pypa/cibuildwheel@v4.1.0
@@ -64,7 +65,7 @@ jobs:
           CIBW_ARCHS_LINUX: ${{ matrix.platform.archs }}
 
       - name: Upload wheels
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: distributions-linux-${{ matrix.platform.name }}
           path: wheelhouse/*.whl
@@ -84,7 +85,7 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
 
       - name: Set up Rust
         uses: dtolnay/rust-toolchain@stable
@@ -98,7 +99,7 @@ jobs:
           CIBW_ARCHS_ANDROID: ${{ matrix.platform.archs }}
 
       - name: Upload wheels
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: distributions-android-${{ matrix.platform.name }}
           path: wheelhouse/*.whl
@@ -120,7 +121,7 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
 
       - name: Set up Rust
         uses: dtolnay/rust-toolchain@stable
@@ -133,7 +134,7 @@ jobs:
           CIBW_ARCHS_WINDOWS: ${{ matrix.platform.archs }}
 
       - name: Upload wheels
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: distributions-windows-${{ matrix.platform.name }}
           path: wheelhouse/*.whl
@@ -155,7 +156,7 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
 
       - name: Set up Rust
         uses: dtolnay/rust-toolchain@stable
@@ -166,7 +167,7 @@ jobs:
           CIBW_ARCHS_MACOS: ${{ matrix.platform.archs }}
 
       - name: Upload wheels
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: distributions-macos-${{ matrix.platform.name }}
           path: wheelhouse/*.whl

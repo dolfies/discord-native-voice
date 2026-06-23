@@ -8,6 +8,7 @@ from ._native_voice import (
     VP8Depacketizer,
     VP9Depacketizer,
 )
+from ._version import __version__
 from .client import VoiceClient
 from .media import (
     AsyncQueueSink,
@@ -116,4 +117,5 @@ __all__ = (
     'VideoTranscoderConfig',
     'VoiceClient',
     'WaveSink',
+    '__version__',
 )
