@@ -8,6 +8,7 @@ version = "0.1.0"
 description = "Voice, video, and stream transport extension for discord.py-self"
 readme = "README.md"
 license = { file = "LICENSE" }
+requires-python = ">=3.10"
 authors = [
     { name = "Dolfies", email = "me@dolfi.es" },
 ]
@@ -51,6 +52,25 @@ zip-safe = false
 [[tool.setuptools-rust.ext-modules]]
 target = "discord.ext.native_voice._native_voice"
 debug = false
+
+[tool.cibuildwheel]
+build = "cp310-* cp311-* cp312-* cp313-* cp314-*"
+skip = "cp3??t-* pp*"
+build-verbosity = 1
+
+[tool.cibuildwheel.linux]
+before-all = "curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y --profile minimal"
+environment = { PATH = "$HOME/.cargo/bin:$PATH" }
+
+[tool.cibuildwheel.android]
+before-all = "rustup target add aarch64-linux-android x86_64-linux-android"
+
+[tool.cibuildwheel.macos]
+environment = { MACOSX_DEPLOYMENT_TARGET = "10.12" }
+
+[tool.cibuildwheel.windows]
+before-all = "rustup target add i686-pc-windows-msvc aarch64-pc-windows-msvc"
+test-skip = "*-win_arm64"
 
 [tool.ruff]
 line-length = 125

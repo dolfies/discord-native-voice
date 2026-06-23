@@ -112,3 +112,7 @@ jobs:
 
       - name: Build documentation
         run: sphinx-build -b html -D language=en -j auto -n -T --keep-going docs docs/_build/html
+
+  distributions:
+    name: Distributions
+    uses: ./.github/workflows/build-distributions.yml
