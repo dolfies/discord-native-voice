@@ -33,14 +33,8 @@ fn clamp_sample_f64(value: f64) -> i16 {
         return 0;
     }
     let clamped = value.clamp(i16::MIN as f64, i16::MAX as f64);
-    let rounded = clamped + clamped.signum() * 0.5;
-    if rounded > i16::MAX as f64 {
-        i16::MAX
-    } else if rounded < i16::MIN as f64 {
-        i16::MIN
-    } else {
-        rounded as i16
-    }
+    let rounded = clamped + (0.5f64).copysign(clamped);
+    rounded.clamp(i16::MIN as f64, i16::MAX as f64) as i16
 }
 
 pub fn pcm16_add(left: &[u8], right: &[u8]) -> Result<Vec<u8>, AudioError> {
@@ -56,9 +50,9 @@ pub fn pcm16_add(left: &[u8], right: &[u8]) -> Result<Vec<u8>, AudioError> {
         .zip(right.chunks_exact(2))
         .zip(output.chunks_exact_mut(2))
     {
-        let left_value = i16::from_le_bytes([left_sample[0], left_sample[1]]) as i32;
-        let right_value = i16::from_le_bytes([right_sample[0], right_sample[1]]) as i32;
-        output_sample.copy_from_slice(&clamp_i16(left_value + right_value).to_le_bytes());
+        let left_value = i16::from_le_bytes([left_sample[0], left_sample[1]]);
+        let right_value = i16::from_le_bytes([right_sample[0], right_sample[1]]);
+        output_sample.copy_from_slice(&left_value.saturating_add(right_value).to_le_bytes());
     }
     Ok(output)
 }
@@ -88,22 +82,17 @@ pub fn pcm16_mix(chunks: &[&[u8]]) -> Result<Vec<u8>, AudioError> {
 
     let sample_count = max_len / 2;
     let mut mixed = vec![0i32; sample_count];
-    if let Some(first) = chunks.first() {
-        for (index, sample) in first.chunks_exact(2).enumerate() {
-            mixed[index] = i16::from_le_bytes([sample[0], sample[1]]) as i32;
-        }
-    }
 
-    for chunk in chunks.iter().skip(1) {
+    for chunk in chunks.iter() {
         for (index, sample) in chunk.chunks_exact(2).enumerate() {
             let value = i16::from_le_bytes([sample[0], sample[1]]) as i32;
-            mixed[index] = clamp_i16(mixed[index] + value) as i32;
+            mixed[index] = mixed[index].saturating_add(value);
         }
     }
 
     let mut output = vec![0u8; max_len];
     for (sample, output_sample) in mixed.into_iter().zip(output.chunks_exact_mut(2)) {
-        output_sample.copy_from_slice(&(sample as i16).to_le_bytes());
+        output_sample.copy_from_slice(&clamp_i16(sample).to_le_bytes());
     }
     Ok(output)
 }
