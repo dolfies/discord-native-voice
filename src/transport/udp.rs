@@ -9,13 +9,13 @@ const IP_DISCOVERY_PACKET_SIZE: usize = 74;
 const IP_DISCOVERY_PAYLOAD_LEN: u16 = 70;
 const IP_DISCOVERY_SEND: u16 = 1;
 const IP_DISCOVERY_RESPONSE: u16 = 2;
-const NATIVE_PING_RESPONSE: u32 = 0xF00D_1337;
-const NATIVE_PING_REQUEST: u32 = 0xCAFE_1337;
+const NATIVE_PING_RESPONSE: u32 = 0x1337_F00D;
+const NATIVE_PING_REQUEST: u32 = 0x1337_CAFE;
 const NATIVE_PING_SIZE: usize = 8;
 
 pub fn native_ping_request(sequence: u32) -> [u8; NATIVE_PING_SIZE] {
     let mut packet = [0u8; NATIVE_PING_SIZE];
-    packet[..4].copy_from_slice(&NATIVE_PING_REQUEST.to_le_bytes());
+    packet[..4].copy_from_slice(&NATIVE_PING_REQUEST.to_be_bytes());
     packet[4..].copy_from_slice(&sequence.to_le_bytes());
     packet
 }
@@ -25,7 +25,7 @@ pub fn native_ping_response_sequence(packet: &[u8]) -> Option<u32> {
         return None;
     }
 
-    let magic = u32::from_le_bytes(packet[..4].try_into().ok()?);
+    let magic = u32::from_be_bytes(packet[..4].try_into().ok()?);
     if magic != NATIVE_PING_RESPONSE {
         return None;
     }
