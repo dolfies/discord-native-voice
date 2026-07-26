@@ -31,6 +31,7 @@ classifiers = [
 ]
 dependencies = [
     "discord.py-self>=2.2.0",
+    "davey>=0.1.6"
 ]
 
 [project.urls]
