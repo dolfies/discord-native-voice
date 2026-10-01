@@ -205,8 +205,8 @@ class MediaPlayer(AudioPlayer):
             if now - target > frame_time * 2:
                 return now + frame_time
             return target + (int((now - target) // frame_time) + 1) * frame_time
-        if now - target > frame_time:
-            return now
+        # Non-realtime sources stay on the nominal grid: a missed slot is made up by the catch-up
+        # loop, so the video timeline cannot fall behind the wall clock.
         return target
 
     @staticmethod
@@ -219,8 +219,7 @@ class MediaPlayer(AudioPlayer):
 
     @staticmethod
     def _video_catchup_frames(source: MediaSource) -> int:
-        if not source.video_realtime:
-            return 1
+        # Non-realtime sources have to catch up as well, or a missed slot is never recovered.
         value = source.video_catchup_frames
         try:
             return max(1, min(int(value), 16))
